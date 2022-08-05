@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from train import TimeSeriesDataset, TSModel
 
 app = Flask(__name__)
-imagenet_class_index = json.load(open("<PATH/TO/.json/FILE>/input.json"))
+input_data = json.load(open("./data/input.json"))
 model = TSModel(1)
 model.load_state_dict(
     torch.load("/home/kr/MachineLearning/flask-server/model/model144_2.pt")
@@ -61,13 +61,21 @@ def get_prediction(data):
     return predictions_descaled, labels_descaled
 
 
-@app.route("/predict", methods=["POST"])
+@app.route("/predict", methods=["GET"])
 def predict():
-    if request.method == "POST":
+    if request.method == "GET":
         file = request.files["file"]
         data = file.read()
         predictions_descaled, labels_descaled = get_prediction(data)
         return jsonify({"predictions": predictions_descaled, "labels": labels_descaled})
+
+
+@app.route("/data", methods=["POST"])
+def data():
+    if request.method == "POST":
+        file = request.files["file"]
+        data = file.read()
+        # SAVE DATA
 
 
 if __name__ == "__main__":
