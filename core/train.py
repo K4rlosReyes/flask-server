@@ -14,16 +14,6 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
-from torch.utils.tensorboard import SummaryWriter
-writer = SummaryWriter()
-
-os.chdir("/home/kr/MachineLearning/carbon-forecast/core/")
-import preprocess
-
-with open("../models/params.yaml", "r") as params_file:
-    params = yaml.safe_load(params_file)
-
-model_dir = params["model_dir"]
 
 
 class TimeSeriesDataset(Dataset):
@@ -84,7 +74,7 @@ def train_model(
     # Set up training
     n_features = train_df.shape[1]
     model = TSModel(n_features)
-    
+
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     train_hist = []
@@ -96,7 +86,7 @@ def train_model(
     for epoch in range(1, n_epochs + 1):
         running_loss = 0
         model.train()
-        
+
         for batch_idx, (data, target) in enumerate(train_loader, 0):
             # Zero the parameter gradients
             optimizer.zero_grad()
@@ -158,30 +148,3 @@ if __name__ == "__main__":
     parser.add_argument("--n-epochs", type=int, default=params["n_epochs"])
     parser.add_argument("--n-epochs-stop", type=int, default=params["n_epochs_stop"])
     args = parser.parse_args()
-
-    # Load the data and take 1 sample every 30 min
-    data = preprocess.load_data("IUMPA.csv")
-    data = data[0::30]
-
-    # Scale and split the data
-    train_df, test_df = preprocess.prep_data(df=data, train_frac=0.80, plot_df=False)
-
-    # Declaring training variables
-    label_name = "carbono"
-    sequence_length = 144
-    batch_size = 256
-    n_epochs = 100
-    n_epochs_stop = 5
-
-    # Start training
-    hist = train_model(
-        train_df,
-        test_df,
-        label_name,
-        sequence_length,
-        batch_size,
-        n_epochs,
-        n_epochs_stop,
-    )
-    writer.close()
-    

@@ -1,23 +1,30 @@
-import io
 import json
+import os
+
 import joblib
-
-from flask import Flask, jsonify, request
 import numpy as np
-
-from sklearn import metrics
-from sklearn.preprocessing import MinMaxScaler
+import pandas as pd
 import torch
+from flask import Flask, jsonify, request
+from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader
-from train import TimeSeriesDataset, TSModel
+from werkzeug.utils import secure_filename
+from core.train import TimeSeriesDataset, TSModel
 
 app = Flask(__name__)
-input_data = json.load(open("./data/input.json"))
+data_dir = os.path.join(app.instance_path, "data")
+os.makedirs(data_dir, exist_ok=True)
 model = TSModel(1)
-model.load_state_dict(
-    torch.load("/home/kr/MachineLearning/flask-server/model/model144_2.pt")
-)
+model.load_state_dict(torch.load("./model/model144_2.pt"))
 model.eval()
+
+
+def rescale_data(scaler, df):
+    """Rescale all features using MinMaxScaler() to same scale, between 0 and 1."""
+
+    df_scaled = pd.DataFrame(scaler.transform(df), index=df.index, columns=df.columns)
+
+    return df_scaled
 
 
 def descale(descaler, values):
@@ -46,7 +53,7 @@ def prediction(df, sequence_length):
             labels.append(target.tolist())
 
     # Bring predictions back to original scale
-    scaler = joblib.load("/home/kr/MachineLearning/flask-server/model/scaler.gz")
+    scaler = joblib.load("model/scaler.gz")
     descaler = MinMaxScaler()
     descaler.min_, descaler.scale_ = scaler.min_[0], scaler.scale_[0]
     predictions_descaled = descale(descaler, predictions)
@@ -64,18 +71,17 @@ def get_prediction(data):
 @app.route("/predict", methods=["GET"])
 def predict():
     if request.method == "GET":
-        file = request.files["file"]
-        data = file.read()
-        predictions_descaled, labels_descaled = get_prediction(data)
+        input = data()
+        predictions_descaled, labels_descaled = get_prediction(input)
         return jsonify({"predictions": predictions_descaled, "labels": labels_descaled})
 
 
 @app.route("/data", methods=["POST"])
 def data():
     if request.method == "POST":
-        file = request.files["file"]
-        data = file.read()
-        # SAVE DATA
+        file = request.json
+        # file.save(os.path.join(data_dir, secure_filename(file.filename)))
+        return file["data"]
 
 
 if __name__ == "__main__":
