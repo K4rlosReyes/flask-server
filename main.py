@@ -7,16 +7,45 @@ import pandas as pd
 import torch
 from flask import Flask, jsonify, request
 from sklearn.preprocessing import MinMaxScaler
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
+import torch.nn as nn
 from werkzeug.utils import secure_filename
-from core.train import TimeSeriesDataset, TSModel
 
-app = Flask(__name__)
-data_dir = os.path.join(app.instance_path, "data")
-os.makedirs(data_dir, exist_ok=True)
-model = TSModel(1)
-model.load_state_dict(torch.load("./model/model144_2.pt"))
-model.eval()
+
+class TimeSeriesDataset(Dataset):
+    def __init__(self, X, seq_len=144):
+        self.X = X
+        self.seq_len = seq_len
+
+    def __len__(self):
+        return self.X.__len__()
+
+    # Create Window
+    def __getitem__(self):
+        return self.X[0 : self.seq_len]
+
+
+class TSModel(nn.Module):
+    def __init__(self, n_features, n_hidden=64, n_layers=3):
+        super(TSModel, self).__init__()
+
+        # LSTM architecture
+        self.n_hidden = n_hidden
+        self.lstm = nn.LSTM(
+            input_size=n_features,
+            hidden_size=n_hidden,
+            batch_first=True,
+            num_layers=n_layers,
+            dropout=0.5,
+        )
+        self.linear = nn.Linear(n_hidden, 12)
+
+    def forward(self, x):
+        _, (hidden, _) = self.lstm(x)
+        lstm_out = hidden[-1]  # Output last hidden state output
+        y_pred = self.linear(lstm_out)
+
+        return y_pred
 
 
 def rescale_data(scaler, df):
@@ -38,50 +67,59 @@ def descale(descaler, values):
 def prediction(df, sequence_length):
     """Make predictions."""
 
-    test_dataset = TimeSeriesDataset(
-        np.array(df), np.array(df), seq_len=sequence_length
-    )
+    test_dataset = TimeSeriesDataset(np.array(df), seq_len=sequence_length)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     predictions = []
-    labels = []
     with torch.no_grad():
-        for features, target in test_loader:
+        for features in test_loader:
             features = torch.Tensor(np.array(features))
             output = model(features)
             predictions.append(output.tolist())
-            labels.append(target.tolist())
 
     # Bring predictions back to original scale
     scaler = joblib.load("model/scaler.gz")
     descaler = MinMaxScaler()
     descaler.min_, descaler.scale_ = scaler.min_[0], scaler.scale_[0]
     predictions_descaled = descale(descaler, predictions)
-    labels_descaled = descale(descaler, labels)
 
-    return predictions_descaled, labels_descaled
+    return predictions_descaled
 
 
 def get_prediction(data):
     sequence_length = 144
-    predictions_descaled, labels_descaled = prediction(data, sequence_length)
-    return predictions_descaled, labels_descaled
+    predictions_descaled = prediction(data, sequence_length)
+    return predictions_descaled
+
+
+app = Flask(__name__)
+data_dir = os.path.join(app.instance_path, "data")
+os.makedirs(data_dir, exist_ok=True)
+df = pd.DataFrame(columns=["carbono"])
+df["carbono"] = [0]
+model = TSModel(1)
+model.load_state_dict(torch.load("./model/model144_2.pt"))
+model.eval()
 
 
 @app.route("/predict", methods=["GET"])
 def predict():
     if request.method == "GET":
-        input = data()
-        predictions_descaled, labels_descaled = get_prediction(input)
-        return jsonify({"predictions": predictions_descaled, "labels": labels_descaled})
+        df = pd.read_csv(data_dir + "/data.csv")
+        input = df["carbono"].iloc[-144:]
+        print(f"La entrada es :{input.shape}")
+        predictions_descaled = get_prediction(input)
+        return jsonify({"predictions": predictions_descaled})
 
 
 @app.route("/data", methods=["POST"])
 def data():
     if request.method == "POST":
         file = request.json
-        # file.save(os.path.join(data_dir, secure_filename(file.filename)))
-        return file["data"]
+        # df = df.append(file["data"], ignore_index=True)
+        # df = df.append(file["data"], ignore_index=True)
+        df.to_csv(data_dir + "/data.csv")
+        return "Added data"
 
 
 if __name__ == "__main__":
