@@ -21,7 +21,7 @@ class TimeSeriesDataset(Dataset):
         return self.X.__len__()
 
     # Create Window
-    def __getitem__(self):
+    def __getitem__(self, index):
         return self.X[0 : self.seq_len]
 
 
