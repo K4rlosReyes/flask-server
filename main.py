@@ -49,8 +49,8 @@ class TSModel(nn.Module):
 
 
 def rescale_data(scaler, df):
-    """Rescale all features using MinMaxScaler() to same scale, between 0 and 1."""
-
+    """Rescale all features using MinMaxScaler()
+    to same scale, between 0 and 1."""
     df_scaled = pd.DataFrame(scaler.transform(df), index=df.index, columns=df.columns)
 
     return df_scaled
@@ -66,7 +66,6 @@ def descale(descaler, values):
 
 def prediction(df, sequence_length):
     """Make predictions."""
-
     test_dataset = TimeSeriesDataset(np.array(df), seq_len=sequence_length)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
@@ -76,6 +75,7 @@ def prediction(df, sequence_length):
             features = torch.Tensor(np.array(features))
             output = model(features)
             predictions.append(output.tolist())
+            break
 
     # Bring predictions back to original scale
     scaler = joblib.load("model/scaler.gz")
@@ -95,31 +95,28 @@ def get_prediction(data):
 app = Flask(__name__)
 data_dir = os.path.join(app.instance_path, "data")
 os.makedirs(data_dir, exist_ok=True)
-df = pd.DataFrame(columns=["carbono"])
-df["carbono"] = [0]
 model = TSModel(1)
 model.load_state_dict(torch.load("./model/model144_2.pt"))
 model.eval()
 
 
-@app.route("/predict", methods=["GET"])
+@app.route("/predict", methods=["GET", "POST"])
 def predict():
-    if request.method == "GET":
-        df = pd.read_csv(data_dir + "/data.csv")
-        input = df["carbono"].iloc[-144:]
-        print(f"La entrada es :{input.shape}")
-        predictions_descaled = get_prediction(input)
-        return jsonify({"predictions": predictions_descaled})
+    input = request.json
+    input = np.array(input["data"])
+    input = input[:, np.newaxis]
+    predictions_descaled = get_prediction(input)
+    predictions_descaled = np.array(predictions_descaled)
+    return jsonify({"predictions": predictions_descaled.tolist()})
 
 
-@app.route("/data", methods=["POST"])
-def data():
-    if request.method == "POST":
-        file = request.json
-        # df = df.append(file["data"], ignore_index=True)
-        # df = df.append(file["data"], ignore_index=True)
-        df.to_csv(data_dir + "/data.csv")
-        return "Added data"
+# @app.route("/data", methods=["POST"])
+# def data():
+#     if request.method == "POST":
+#         file = request.json
+#         df = df.append(file["data"], ignore_index=True)
+#         df.to_csv(data_dir + "/data.csv")
+#         return "Added data"
 
 
 if __name__ == "__main__":
