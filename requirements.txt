@@ -1,4 +1,5 @@
 https://download.pytorch.org/whl/cpu/torch-1.12.1%2Bcpu-cp310-cp310-linux_x86_64.whl
+gunicorn==20.1.0
 # absl-py==1.0.0
 # aiohttp==3.8.1
 # aiosignal==1.2.0
