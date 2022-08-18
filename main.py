@@ -105,8 +105,7 @@ def predict():
     input = request.json
     input = np.array(input["data"])
     input = input[:, np.newaxis]
-    predictions_descaled = get_prediction(input)
-    predictions_descaled = np.array(predictions_descaled)
+    predictions_descaled = np.array(get_prediction(input))
     return jsonify({"predictions": predictions_descaled.tolist()})
 
 
