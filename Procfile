@@ -1,1 +1,1 @@
-web: flask --app main run $33507
+web: gunicorn main:app
