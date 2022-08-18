@@ -1,5 +1,4 @@
-python==3.8.13
-https://download.pytorch.org/whl/cpu/torch-1.12.1%2Bcpu-cp38-cp38-linux_x86_64.whl
+https://download.pytorch.org/whl/cpu/torch-1.12.1%2Bcpu-cp310-cp310-linux_x86_64.whl
 # absl-py==1.0.0
 # aiohttp==3.8.1
 # aiosignal==1.2.0
