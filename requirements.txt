@@ -1,4 +1,4 @@
-https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.12.1%2Bcpu.zip
+https://download.pytorch.org/whl/cpu
 # absl-py==1.0.0
 # aiohttp==3.8.1
 # aiosignal==1.2.0
