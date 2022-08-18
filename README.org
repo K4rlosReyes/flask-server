@@ -2,3 +2,9 @@
 #+description: A very basic Flask Server
 #+author: Carlos Reyes
 A basic Flask Server to test communication between Matlab and Python model.
+
+* Test the server:
+Run the following line
+#+begin_src bash
+curl -X POST -H "Content-Type: application/json" -d @/path-to-json("data":[144 numbers]) https://flaskai-app.herokuapp.com/predict
+#+end_src
