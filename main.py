@@ -96,7 +96,7 @@ app = Flask(__name__)
 data_dir = os.path.join(app.instance_path, "data")
 os.makedirs(data_dir, exist_ok=True)
 model = TSModel(1)
-model.load_state_dict(torch.load("./model/model144_2.pt"))
+model.load_state_dict(torch.load("./model/model144_12.pt"))
 model.eval()
 
 
