@@ -78,7 +78,7 @@ def prediction(df, sequence_length):
             break
 
     # Bring predictions back to original scale
-    scaler = joblib.load("model/scaler.gz")
+    scaler = joblib.load("./model/scaler.gz")
     descaler = MinMaxScaler()
     descaler.min_, descaler.scale_ = scaler.min_[0], scaler.scale_[0]
     predictions_descaled = descale(descaler, predictions)
@@ -93,8 +93,8 @@ def get_prediction(data):
 
 
 app = Flask(__name__)
-data_dir = os.path.join(app.instance_path, "data")
-os.makedirs(data_dir, exist_ok=True)
+# data_dir = os.path.join(app.instance_path, "data")
+# os.makedirs(data_dir, exist_ok=True)
 model = TSModel(1)
 model.load_state_dict(torch.load("./model/model144_12.pt"))
 model.eval()
@@ -105,7 +105,11 @@ def predict():
     input = request.json
     input = np.array(input["data"])
     input = input[:, np.newaxis]
-    predictions_descaled = np.array(get_prediction(input))
+    scaler_data = joblib.load("./model/scaler.gz")
+    scaler = MinMaxScaler()
+    scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
+    scaled_inputs = scaler.transform(input)
+    predictions_descaled = np.array(get_prediction(scaled_inputs))
     return jsonify({"predictions": predictions_descaled.tolist()})
 
 
