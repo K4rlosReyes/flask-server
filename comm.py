@@ -193,9 +193,9 @@ while True:
 
     # Comm with Flask Server
     json = {"data": data}
-    flask_server = "http://localhost:5000/predict"
+    flask_server = "https://flaskai-app.heroku.com/predict"
     response = requests.post(flask_server, json=json)
 
-    logging.info("Predictions: \n%r", response)
+    logging.info("SENT")
 
     sleep(1800)  # 1800
