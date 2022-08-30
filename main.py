@@ -1,3 +1,5 @@
+import sqlite3
+import datetime
 import json
 import os
 
@@ -110,16 +112,28 @@ def predict():
     scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
     scaled_inputs = scaler.transform(input)
     predictions_descaled = np.array(get_prediction(scaled_inputs))
-    return jsonify({"predictions": predictions_descaled.tolist()})
+
+    # return jsonify({"predictions": predictions_descaled.tolist()})
+    data_json = {"predictions": predictions_descaled.tolist()}
+    connection = sqlite3.connect("predictions.db")
+    cursor = connection.cursor()
+    cursor.execute(
+        """INSERT INTO pred VALUES (datetime('now'), ?);""", [json.dumps(data_json)]
+    )
+    connection.commit()
+    connection.close()
+    return "Done"
 
 
-# @app.route("/data", methods=["POST"])
-# def data():
-#     if request.method == "POST":
-#         file = request.json
-#         df = df.append(file["data"], ignore_index=True)
-#         df.to_csv(data_dir + "/data.csv")
-#         return "Added data"
+@app.route("/results", methods=["GET"])
+def data():
+    if request.method == "GET":
+        connection = sqlite3.connect("predictions.db")
+        cursor = connection.cursor()
+        cursor.execute("""SELECT Prediction FROM pred ORDER BY Date DESC LIMIT 1;""")
+        prediction = cursor.fetchall()
+        connection.close()
+        return prediction
 
 
 if __name__ == "__main__":
