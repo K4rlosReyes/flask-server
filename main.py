@@ -1,17 +1,14 @@
-import sqlite3
-import datetime
 import json
-import os
+import sqlite3
 
 import joblib
 import numpy as np
 import pandas as pd
 import torch
-from flask import Flask, jsonify, request
+import torch.nn as nn
+from flask import Flask, request
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader, Dataset
-import torch.nn as nn
-from werkzeug.utils import secure_filename
 
 
 class TimeSeriesDataset(Dataset):
