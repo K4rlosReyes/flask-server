@@ -6,5 +6,5 @@ A basic Flask Server to test communication between Matlab and Python model.
 * Test the server:
 Run the following line
 #+begin_src bash
-curl -X POST -H "Content-Type: application/json" -d @/path-to-json("data":[144 numbers]) https://flaskai-app.herokuapp.com/predict
+curl https://predai.herokuapp.com/results
 #+end_src
