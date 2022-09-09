@@ -94,8 +94,11 @@ def get_prediction(data):
 app = Flask(__name__)
 # data_dir = os.path.join(app.instance_path, "data")
 # os.makedirs(data_dir, exist_ok=True)
+device = torch.device("cpu")
 model = TSModel(1)
-model.load_state_dict(torch.load("./model/model96_48_05d_0005_480b.pt"))
+model.load_state_dict(
+    torch.load("./model/model96_48_05d_0005_480b.pt", map_location=device)
+)
 model.eval()
 
 
