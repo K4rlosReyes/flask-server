@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, Dataset
 
 
 class TimeSeriesDataset(Dataset):
-    def __init__(self, X, seq_len=144):
+    def __init__(self, X, seq_len=96):
         self.X = X
         self.seq_len = seq_len
 
@@ -25,7 +25,7 @@ class TimeSeriesDataset(Dataset):
 
 
 class TSModel(nn.Module):
-    def __init__(self, n_features, n_hidden=64, n_layers=3):
+    def __init__(self, n_features, n_hidden=32, n_layers=2):
         super(TSModel, self).__init__()
 
         # LSTM architecture
@@ -37,7 +37,7 @@ class TSModel(nn.Module):
             num_layers=n_layers,
             dropout=0.5,
         )
-        self.linear = nn.Linear(n_hidden, 12)
+        self.linear = nn.Linear(n_hidden, 48)
 
     def forward(self, x):
         _, (hidden, _) = self.lstm(x)
@@ -86,7 +86,7 @@ def prediction(df, sequence_length):
 
 
 def get_prediction(data):
-    sequence_length = 144
+    sequence_length = 96
     predictions_descaled = prediction(data, sequence_length)
     return predictions_descaled
 
@@ -95,7 +95,7 @@ app = Flask(__name__)
 # data_dir = os.path.join(app.instance_path, "data")
 # os.makedirs(data_dir, exist_ok=True)
 model = TSModel(1)
-model.load_state_dict(torch.load("./model/model144_12.pt"))
+model.load_state_dict(torch.load("./model/model96_48_05d_0005_480b.pt"))
 model.eval()
 
 
