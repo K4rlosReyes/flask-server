@@ -147,7 +147,7 @@ def plot():
         cursor.execute("""SELECT Prediction FROM pred ORDER BY Date DESC LIMIT 1;""")
         prediction = cursor.fetchall()
         connection.close()
-        return data
+        return data, prediction
 
 
 if __name__ == "__main__":
