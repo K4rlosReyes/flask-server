@@ -105,15 +105,15 @@ model.eval()
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
     input = request.json
-    input = np.array(input["data"])
-    input = input[:, np.newaxis]
+    inputnp = np.array(input["data"])
+    input = inputnp[:, np.newaxis]
     scaler_data = joblib.load("./model/scaler.gz")
     scaler = MinMaxScaler()
     scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
     scaled_inputs = scaler.transform(input)
     predictions_descaled = np.array(get_prediction(scaled_inputs))
 
-    input_json = {"input": input.tolist()}
+    input_json = {"input": inputnp.tolist()}
     data_json = {"predictions": predictions_descaled.tolist()}
     connection = sqlite3.connect("predictions.db")
     cursor = connection.cursor()
