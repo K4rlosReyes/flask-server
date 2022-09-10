@@ -113,11 +113,13 @@ def predict():
     scaled_inputs = scaler.transform(input)
     predictions_descaled = np.array(get_prediction(scaled_inputs))
 
+    input_json = {"input": input.tolist()}
     data_json = {"predictions": predictions_descaled.tolist()}
     connection = sqlite3.connect("predictions.db")
     cursor = connection.cursor()
     cursor.execute(
-        """INSERT INTO pred VALUES (datetime('now'), ?);""", [json.dumps(data_json)]
+        """INSERT INTO pred VALUES (datetime('now'), ?, ?);""",
+        [json.dumps(input_json), json.dumps(data_json)],
     )
     connection.commit()
     connection.close()
