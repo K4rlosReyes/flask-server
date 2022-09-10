@@ -137,17 +137,15 @@ def results():
         return prediction
 
 
-@app.route("/plot", methods=["GET"])
-def plot():
+@app.route("/input", methods=["GET"])
+def input():
     if request.method == "GET":
         connection = sqlite3.connect("predictions.db")
         cursor = connection.cursor()
         cursor.execute("""SELECT Input FROM pred ORDER BY Date DESC LIMIT 1;""")
-        data = cursor.fetchall()
-        cursor.execute("""SELECT Prediction FROM pred ORDER BY Date DESC LIMIT 1;""")
-        prediction = cursor.fetchall()
+        input_nn = cursor.fetchall()
         connection.close()
-        return data, prediction
+        return input_nn
 
 
 if __name__ == "__main__":
