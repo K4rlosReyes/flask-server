@@ -113,7 +113,6 @@ def predict():
     scaled_inputs = scaler.transform(input)
     predictions_descaled = np.array(get_prediction(scaled_inputs))
 
-    # return jsonify({"predictions": predictions_descaled.tolist()})
     data_json = {"predictions": predictions_descaled.tolist()}
     connection = sqlite3.connect("predictions.db")
     cursor = connection.cursor()
@@ -126,7 +125,7 @@ def predict():
 
 
 @app.route("/results", methods=["GET"])
-def data():
+def results():
     if request.method == "GET":
         connection = sqlite3.connect("predictions.db")
         cursor = connection.cursor()
@@ -134,6 +133,19 @@ def data():
         prediction = cursor.fetchall()
         connection.close()
         return prediction
+
+
+@app.route("/plot", methods=["GET"])
+def plot():
+    if request.method == "GET":
+        connection = sqlite3.connect("predictions.db")
+        cursor = connection.cursor()
+        cursor.execute("""SELECT Input FROM pred ORDER BY Date DESC LIMIT 1;""")
+        data = cursor.fetchall()
+        cursor.execute("""SELECT Prediction FROM pred ORDER BY Date DESC LIMIT 1;""")
+        prediction = cursor.fetchall()
+        connection.close()
+        return data, prediction
 
 
 if __name__ == "__main__":
