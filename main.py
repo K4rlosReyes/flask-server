@@ -25,7 +25,7 @@ class TimeSeriesDataset(Dataset):
 
 
 class TSModel(nn.Module):
-    def __init__(self, n_features, n_hidden=32, n_layers=2):
+    def __init__(self, n_features, n_hidden=18, n_layers=2):
         super(TSModel, self).__init__()
 
         # LSTM architecture
@@ -96,9 +96,7 @@ app = Flask(__name__)
 # os.makedirs(data_dir, exist_ok=True)
 device = torch.device("cpu")
 model = TSModel(1)
-model.load_state_dict(
-    torch.load("./model/model96_48_05d_0005_480b.pt", map_location=device)
-)
+model.load_state_dict(torch.load("./model/model.pt", map_location=device))
 model.eval()
 
 
