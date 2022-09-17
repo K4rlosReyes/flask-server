@@ -25,7 +25,7 @@ class TimeSeriesDataset(Dataset):
 
 
 class TSModel(nn.Module):
-    def __init__(self, n_features, n_hidden=32, n_layers=2):
+    def __init__(self, n_features, n_hidden=64, n_layers=2):
         super(TSModel, self).__init__()
 
         # LSTM architecture
