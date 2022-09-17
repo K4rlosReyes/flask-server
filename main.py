@@ -96,7 +96,7 @@ app = Flask(__name__)
 # os.makedirs(data_dir, exist_ok=True)
 device = torch.device("cpu")
 model = TSModel(1)
-model.load_state_dict(torch.load("./model/model.pt", map_location=device))
+model.load_state_dict(torch.load("./model/modelfew.pt", map_location=device))
 model.eval()
 
 
