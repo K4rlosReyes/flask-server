@@ -152,7 +152,7 @@ def real():
         connection = sqlite3.connect("predictions.db")
         cursor = connection.cursor()
         cursor.execute(
-            """SELECT Input FROM pred ORDER BY Date DESC LIMIT 1 WHERE rowid=96;"""
+            """SELECT Prediction FROM pred ORDER BY Date DESC LIMIT 1 WHERE rowid=96;"""
         )
         real_nn = cursor.fetchall()
         connection.close()
