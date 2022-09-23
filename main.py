@@ -116,7 +116,7 @@ def predict():
     connection = sqlite3.connect("predictions.db")
     cursor = connection.cursor()
     cursor.execute(
-        """INSERT INTO pred VALUES (datetime('now'), ?, ?);""",
+        """INSERT INTO pred (Date, Input, Prediction) VALUES (datetime('now'), ?, ?);""",
         [json.dumps(input_json), json.dumps(data_json)],
     )
     connection.commit()
