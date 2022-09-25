@@ -35,7 +35,7 @@ class TSModel(nn.Module):
             hidden_size=n_hidden,
             batch_first=True,
             num_layers=n_layers,
-            dropout=0.5,
+            dropout=0.2,
         )
         self.linear = nn.Linear(n_hidden, 48)
 
