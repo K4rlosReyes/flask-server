@@ -1,12 +1,10 @@
 import json
 import sqlite3
-import tensorflow.keras as keras
+from tensorflow import keras
 import joblib
 import numpy as np
-import pandas as pd
 from flask import Flask, request
 from sklearn.preprocessing import MinMaxScaler
-
 
 def input_co2(input):
     inputnp = np.array(input["co2"])
