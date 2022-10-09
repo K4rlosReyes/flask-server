@@ -6,6 +6,7 @@ import numpy as np
 from flask import Flask, request
 from sklearn.preprocessing import MinMaxScaler
 
+
 def input_co2(input):
     inputnp = np.array(input["co2"])
     input = inputnp[:, np.newaxis]
@@ -49,13 +50,13 @@ def input_hum(input):
 
 
 app = Flask(__name__)
-with open("./model/co2_model.json") as f:
+with open("./model/official/co2_model.json") as f:
     model_co2 = keras.models.model_from_json(f.read())
-    model_co2.load_weights("./model/co2_weights.h5")
-with open("./model/temp_model.json") as f:
+    model_co2.load_weights("./model/official/co2_weights.h5")
+with open("./model/official/temp_model.json") as f:
     model_temp = keras.models.model_from_json(f.read())
-    model_temp.load_weights("./model/temp_weights.h5")
-#with open("./model/hum_model.json") as f:
+    model_temp.load_weights("./model/official/temp_weights.h5")
+# with open("./model/hum_model.json") as f:
 #    model_hum = keras.models.model_from_json(f.read())
 #    model_hum.load_weights("./model/hum_weights.h5")
 
@@ -66,11 +67,11 @@ def predict():
 
     prediction_co2, input_json_co2 = input_co2(input)
     prediction_temp, input_json_temp = input_temp(input)
-#    prediction_hum, input_json_hum = input_hum(input)
+    #    prediction_hum, input_json_hum = input_hum(input)
 
     data_json_co2 = {"co2": prediction_co2.tolist()}
     data_json_temp = {"temp": prediction_temp.tolist()}
-#    data_json_hum = {"hum": prediction_hum.tolist()}
+    #    data_json_hum = {"hum": prediction_hum.tolist()}
 
     connection = sqlite3.connect("predictions_multi.db")
     cursor = connection.cursor()
@@ -81,8 +82,8 @@ def predict():
             json.dumps(data_json_co2),
             json.dumps(input_json_temp),
             json.dumps(data_json_temp),
-            #json.dumps(input_json_hum),
-            #json.dumps(data_json_hum),
+            # json.dumps(input_json_hum),
+            # json.dumps(data_json_hum),
         ],
     )
     connection.commit()
