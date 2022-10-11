@@ -1,51 +1,52 @@
 import json
 import sqlite3
-from tensorflow import keras
+
 import joblib
 import numpy as np
 from flask import Flask, request
 from sklearn.preprocessing import MinMaxScaler
+from tensorflow import keras
 
 
-def input_co2(input):
-    inputnp = np.array(input["co2"])
-    input = inputnp[:, np.newaxis]
+def input_co2(input_request):
+    input_co2_np = np.array(input_request["co2"])
+    input_co2 = input_co2_np[:, np.newaxis]
     scaler_data = joblib.load("./model/scaler_co2.gz")
     scaler = MinMaxScaler()
     scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
-    scaled_inputs = scaler.transform(input)
+    scaled_inputs = scaler.transform(input_co2)
     scaled_inputs = scaled_inputs.reshape(1, 48, 1)
     predictions_scaled = np.array(model_co2.predict(scaled_inputs))
     predictions_descaled = scaler.inverse_transform(predictions_scaled)
-    input_json = {"co2": inputnp.tolist()}
+    input_json = {"co2": input_co2_np.tolist()}
     return predictions_descaled, input_json
 
 
-def input_temp(input):
-    inputnp = np.array(input["temp"])
-    input = inputnp[:, np.newaxis]
+def input_temp(input_request):
+    input_temp_np = np.array(input_request["temp"])
+    input_temp = input_temp_np[:, np.newaxis]
     scaler_data = joblib.load("./model/scaler_temp.gz")
     scaler = MinMaxScaler()
     scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
-    scaled_inputs = scaler.transform(input)
+    scaled_inputs = scaler.transform(input_temp)
     scaled_inputs = scaled_inputs.reshape(1, 48, 1)
     predictions_scaled = np.array(model_temp.predict(scaled_inputs))
     predictions_descaled = scaler.inverse_transform(predictions_scaled)
-    input_json = {"temp": inputnp.tolist()}
+    input_json = {"temp": input_temp_np.tolist()}
     return predictions_descaled, input_json
 
 
-def input_hum(input):
-    inputnp = np.array(input["hum"])
-    input = inputnp[:, np.newaxis]
+def input_hum(input_request):
+    input_hum_np = np.array(input_request["hum"])
+    input_hum = input_hum_np[:, np.newaxis]
     scaler_data = joblib.load("./model/scaler_hum.gz")
     scaler = MinMaxScaler()
     scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
-    scaled_inputs = scaler.transform(input)
+    scaled_inputs = scaler.transform(input_hum)
     scaled_inputs = scaled_inputs.reshape(1, 48, 1)
     predictions_scaled = np.array(model_hum.predict(scaled_inputs))
     predictions_descaled = scaler.inverse_transform(predictions_scaled)
-    input_json = {"hum": inputnp.tolist()}
+    input_json = {"hum": input_hum_np.tolist()}
     return predictions_descaled, input_json
 
 
@@ -63,11 +64,11 @@ with open("./model/official/temp_model.json") as f:
 
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
-    input = request.json
+    input_request = request.json
 
-    prediction_co2, input_json_co2 = input_co2(input)
-    prediction_temp, input_json_temp = input_temp(input)
-    #    prediction_hum, input_json_hum = input_hum(input)
+    prediction_co2, input_json_co2 = input_co2(input_request)
+    prediction_temp, input_json_temp = input_temp(input_request)
+    #    prediction_hum, input_json_hum = input_hum(input_request)
 
     data_json_co2 = {"co2": prediction_co2.tolist()}
     data_json_temp = {"temp": prediction_temp.tolist()}
@@ -105,7 +106,7 @@ def results():
 
 
 @app.route("/input", methods=["GET"])
-def input():
+def input_p():
     if request.method == "GET":
         connection = sqlite3.connect("predictions_multi.db")
         cursor = connection.cursor()
