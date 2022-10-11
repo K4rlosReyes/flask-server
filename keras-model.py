@@ -36,18 +36,18 @@ def input_temp(input_request):
     return predictions_descaled, input_json
 
 
-def input_hum(input_request):
-    input_hum_np = np.array(input_request["hum"])
-    input_hum = input_hum_np[:, np.newaxis]
-    scaler_data = joblib.load("./model/scaler_hum.gz")
-    scaler = MinMaxScaler()
-    scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
-    scaled_inputs = scaler.transform(input_hum)
-    scaled_inputs = scaled_inputs.reshape(1, 48, 1)
-    predictions_scaled = np.array(model_hum.predict(scaled_inputs))
-    predictions_descaled = scaler.inverse_transform(predictions_scaled)
-    input_json = {"hum": input_hum_np.tolist()}
-    return predictions_descaled, input_json
+# def input_hum(input_request):
+#    input_hum_np = np.array(input_request["hum"])
+#    input_hum = input_hum_np[:, np.newaxis]
+#    scaler_data = joblib.load("./model/scaler_hum.gz")
+#    scaler = MinMaxScaler()
+#    scaler.min_, scaler.scale_ = scaler_data.min_[0], scaler_data.scale_[0]
+#    scaled_inputs = scaler.transform(input_hum)
+#    scaled_inputs = scaled_inputs.reshape(1, 48, 1)
+#    predictions_scaled = np.array(model_hum.predict(scaled_inputs))
+#    predictions_descaled = scaler.inverse_transform(predictions_scaled)
+#    input_json = {"hum": input_hum_np.tolist()}
+#    return predictions_descaled, input_json
 
 
 app = Flask(__name__)
