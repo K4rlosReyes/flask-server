@@ -51,12 +51,12 @@ def input_temp(input_request):
 
 
 app = Flask(__name__)
-with open("./model/official/co2_model.json") as f:
+with open("./model/november/co2_model.json") as f:
     model_co2 = keras.models.model_from_json(f.read())
-    model_co2.load_weights("./model/official/co2_weights.h5")
-with open("./model/official/temp_model.json") as f:
+    model_co2.load_weights("./model/november/co2_weights.h5")
+with open("./model/november/temp_model.json") as f:
     model_temp = keras.models.model_from_json(f.read())
-    model_temp.load_weights("./model/official/temp_weights.h5")
+    model_temp.load_weights("./model/november/temp_weights.h5")
 # with open("./model/hum_model.json") as f:
 #    model_hum = keras.models.model_from_json(f.read())
 #    model_hum.load_weights("./model/hum_weights.h5")
